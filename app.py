@@ -22,7 +22,7 @@ client = gspread.authorize(creds)
 
 # Mở file Google Sheets (Đảm bảo tên file trùng khớp với tên bạn đã tạo)
 # Lưu ý: Chọn sheet đầu tiên (sheet1)
-sheet = client.open("Data_GiaoViec").sheet1
+sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1jQFz2qqoDKLDDBKF97QXMfr_RcRv57vlGtIqHUBtK1w/edit?usp=sharing").sheet1
 
 # 2. CHIA MÀN HÌNH LÀM 2 CỘT
 cot_trai, cot_phai = st.columns([1, 2])
