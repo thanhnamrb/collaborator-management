@@ -1,20 +1,33 @@
 import streamlit as st
 import pandas as pd
+import gspread
+from google.oauth2.service_account import Credentials
+import json
 from datetime import date
 
 st.set_page_config(page_title="App Giao Việc", layout="wide")
-
 st.title("📝 Hệ thống Quản lý Công việc")
 
-# 1. TẠO BỘ NHỚ CHO APP (Database giả lập)
-# Nếu app chưa có danh sách công việc, hãy tạo một danh sách trống
-if 'danh_sach_cong_viec' not in st.session_state:
-    st.session_state.danh_sach_cong_viec = []
+# 1. KẾT NỐI VỚI GOOGLE SHEETS
+# Lấy chìa khóa từ két sắt
+key_dict = json.loads(st.secrets["json_key"])
+creds = Credentials.from_service_account_info(
+    key_dict, 
+    scopes=[
+        "https://www.googleapis.com/auth/spreadsheets", 
+        "https://www.googleapis.com/auth/drive"
+    ]
+)
+client = gspread.authorize(creds)
 
-# Chia màn hình làm 2 cột: Cột trái để Giao việc, Cột phải để Xem tiến độ
+# Mở file Google Sheets (Đảm bảo tên file trùng khớp với tên bạn đã tạo)
+# Lưu ý: Chọn sheet đầu tiên (sheet1)
+sheet = client.open("Data_GiaoViec").sheet1
+
+# 2. CHIA MÀN HÌNH LÀM 2 CỘT
 cot_trai, cot_phai = st.columns([1, 2])
 
-# 2. KHU VỰC GIAO VIỆC (Cột trái)
+# --- CỘT TRÁI: GIAO VIỆC ---
 with cot_trai:
     with st.form("form_giao_viec"):
         st.subheader("Giao công việc mới")
@@ -25,30 +38,29 @@ with cot_trai:
         
         nut_gui = st.form_submit_button("Giao việc")
         
-        # Xử lý khi bấm nút
         if nut_gui:
             if ten_cong_viec == "":
                 st.error("Vui lòng nhập tên công việc!")
             else:
-                # Gói gọn thông tin thành 1 "hồ sơ" và lưu vào bộ nhớ
-                cong_viec_moi = {
-                    "Tên công việc": ten_cong_viec,
-                    "Người nhận": nguoi_nhan,
-                    "Hạn chót": han_chot.strftime("%d/%m/%Y"),
-                    "Mô tả": mo_ta,
-                    "Trạng thái": "Mới giao" # Mặc định khi vừa giao
-                }
-                st.session_state.danh_sach_cong_viec.append(cong_viec_moi)
-                st.success("Đã lưu công việc thành công!")
+                # Định dạng ngày tháng thành dạng chữ (chuỗi) để đưa lên Google Sheets
+                han_chot_str = han_chot.strftime("%d/%m/%Y")
+                
+                # Thêm 1 dòng mới vào Google Sheets
+                # Thứ tự phải khớp với tiêu đề cột: Tên | Người nhận | Hạn | Mô tả | Trạng thái
+                sheet.append_row([ten_cong_viec, nguoi_nhan, han_chot_str, mo_ta, "Mới giao"])
+                
+                st.success("Đã lưu dữ liệu thẳng vào Google Sheets!")
 
-# 3. KHU VỰC HIỂN THỊ DANH SÁCH (Cột phải)
+# --- CỘT PHẢI: XEM TIẾN ĐỘ ---
 with cot_phai:
     st.subheader("📋 Bảng theo dõi tiến độ")
     
-    # Kiểm tra xem bộ nhớ có việc nào chưa
-    if len(st.session_state.danh_sach_cong_viec) > 0:
-        # Chuyển dữ liệu thành dạng Bảng (DataFrame) để hiển thị chuyên nghiệp
-        df = pd.DataFrame(st.session_state.danh_sach_cong_viec)
+    # Kéo toàn bộ dữ liệu từ Google Sheets về
+    data = sheet.get_all_records()
+    
+    if len(data) > 0:
+        # Biến thành dạng bảng và hiển thị
+        df = pd.DataFrame(data)
         st.dataframe(df, use_container_width=True)
     else:
-        st.info("Hiện tại chưa có công việc nào. Hãy giao việc ở cột bên trái!")
+        st.info("Chưa có công việc nào. Hãy giao việc ở cột bên trái!")
