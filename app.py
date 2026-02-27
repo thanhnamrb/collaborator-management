@@ -17,7 +17,7 @@ try:
     client = gspread.authorize(creds)
     
     # !!! NHỚ DÁN LẠI LINK CỦA BẠN VÀO ĐÂY !!!
-    file_gg_sheet = client.open_by_url("DÁN_ĐƯỜNG_LINK_CỦA_BẠN_VÀO_ĐÂY")
+    file_gg_sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1jQFz2qqoDKLDDBKF97QXMfr_RcRv57vlGtIqHUBtK1w/edit?usp=sharing")
     
     # Lấy 2 tab riêng biệt
     sheet_congviec = file_gg_sheet.get_worksheet(0) # Tab đầu tiên (chứa công việc)
@@ -33,7 +33,7 @@ try:
     danh_sach_nhan_vien = [row["Tên tài khoản"] for row in data_taikhoan if row["Vai trò"] == "Nhân viên"]
 
 except Exception as e:
-    st.error("Lỗi kết nối Google Sheets. Vui lòng kiểm tra lại link hoặc quyền truy cập.")
+    st.error("Lỗi kết nối database.")
     st.stop()
 
 
