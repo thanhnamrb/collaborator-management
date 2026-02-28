@@ -1,0 +1,18 @@
+[theme]
+# Ép buộc dùng Light Mode
+base="light"
+
+# Màu chủ đạo (Nút bấm, viền)
+primaryColor="#2563eb"
+
+# Màu nền chính của toàn bộ trang web
+backgroundColor="#f8fafc"
+
+# Màu nền phụ (Dành cho các ô nhập liệu, bảng biểu, menu)
+secondaryBackgroundColor="#ffffff"
+
+# Màu chữ mặc định
+textColor="#0f172a"
+
+# Font chữ
+font="sans serif"
