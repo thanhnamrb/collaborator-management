@@ -8,20 +8,15 @@ from datetime import date, datetime, timedelta
 # --- CẤU HÌNH TRANG ---
 st.set_page_config(page_title="Hệ thống Quản lý CTV", page_icon="📝", layout="wide")
 
-# --- CSS TỐI GIẢN (MINIMALIST) ---
+# --- CSS TỐI GIẢN (ĐÃ FIX LỖI NÚT BẤM) ---
 st.markdown("""
     <style>
-    /* Font Inter chuẩn Quốc tế */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     html, body, [class*="css"] { font-family: 'Inter', sans-serif !important; }
     
-    /* Ẩn Header mặc định */
     [data-testid="stHeader"], footer { visibility: hidden; }
-    
-    /* Nền xám nhạt siêu sạch (Static Background) */
     [data-testid="stAppViewContainer"] { background-color: #f8fafc !important; }
     
-    /* Form & Container (Phẳng, viền mảnh, nền trắng) */
     div[data-testid="stForm"], div[data-testid="stExpander"], div[data-testid="metric-container"] {
         background-color: #ffffff !important; 
         border-radius: 8px !important;
@@ -30,10 +25,8 @@ st.markdown("""
         padding: 20px !important;
     }
     
-    /* Màu chữ chung */
     h1, h2, h3, h4, h5, p, span, label { color: #0f172a !important; }
     
-    /* Ô nhập liệu (Viền xám, đổi màu khi click) */
     [data-baseweb="input"] > div, [data-baseweb="textarea"], [data-baseweb="select"] > div {
         background-color: #ffffff !important; 
         border: 1px solid #cbd5e1 !important; 
@@ -45,24 +38,38 @@ st.markdown("""
     input, textarea { color: #0f172a !important; }
     svg { fill: #475569 !important; }
 
-    /* Nút bấm (Đơn sắc, phẳng) */
+    /* FIX LỖI NÚT BẤM: Nền xanh dương, chữ trắng */
     div.stButton > button {
-        background-color: #0f172a !important; /* Màu đen/xanh đậm tối giản */
-        color: white !important; 
+        background-color: #2563eb !important; 
         border-radius: 6px !important; 
         border: none !important;
         padding: 0.5rem 1rem !important; 
-        font-weight: 500 !important;
         box-shadow: none !important;
         width: 100%;
     }
-    div.stButton > button:hover { background-color: #334155 !important; color: white !important; }
+    div.stButton > button:hover { background-color: #1d4ed8 !important; }
     
-    /* Nút Đăng xuất */
-    div[data-testid="column"] > div.stButton > button {
-        background-color: #ffffff !important; color: #475569 !important; border: 1px solid #cbd5e1 !important;
+    /* Ép buộc mọi chữ bên trong nút bấm phải là màu trắng */
+    div.stButton > button, div.stButton > button p, div.stButton > button span {
+        color: #ffffff !important;
+        font-weight: 500 !important;
     }
-    div[data-testid="column"] > div.stButton > button:hover { background-color: #f1f5f9 !important; color: #0f172a !important; }
+    
+    /* Nút Đăng xuất: Nền trắng, viền xám, chữ xám */
+    div[data-testid="column"] > div.stButton > button {
+        background-color: #ffffff !important; border: 1px solid #cbd5e1 !important;
+    }
+    div[data-testid="column"] > div.stButton > button, 
+    div[data-testid="column"] > div.stButton > button p, 
+    div[data-testid="column"] > div.stButton > button span {
+        color: #475569 !important;
+    }
+    div[data-testid="column"] > div.stButton > button:hover { background-color: #f1f5f9 !important; }
+    div[data-testid="column"] > div.stButton > button:hover, 
+    div[data-testid="column"] > div.stButton > button:hover p, 
+    div[data-testid="column"] > div.stButton > button:hover span {
+        color: #0f172a !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -116,7 +123,6 @@ if 'nguoi_dung' not in st.session_state: st.session_state.nguoi_dung = None
 if 'vai_tro' not in st.session_state: st.session_state.vai_tro = None
 
 if st.session_state.nguoi_dung is None:
-    # GIAO DIỆN LOGIN TỐI GIẢN
     st.write("<br><br><br>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1, 1.2, 1])
     with c2:
@@ -144,7 +150,6 @@ if st.session_state.nguoi_dung is None:
 
 # --- 3. GIAO DIỆN LÀM VIỆC ---
 else:
-    # Header gọn gàng
     st.markdown(f"""
         <div style='display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 25px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 25px;'>
             <div style='font-weight: 600; font-size: 1.1rem; color: #0f172a;'>Quản lý CTV <span style='color: #cbd5e1; font-weight: 400;'>|</span> <span style='color: #475569;'>{st.session_state.vai_tro}</span></div>
@@ -157,8 +162,6 @@ else:
         if st.button("Đăng xuất"):
             st.session_state.nguoi_dung = None; st.session_state.vai_tro = None; st.rerun()
 
-    # ==========================
-    # GÓC NHÌN QUẢN LÝ
     # ==========================
     if st.session_state.vai_tro == "Quản lý":
         tab_list, tab_giao, tab_nhan_su = st.tabs(["Danh sách Công việc", "Giao việc mới", "Danh sách CTV"])
@@ -204,8 +207,6 @@ else:
             df_taikhoan = pd.DataFrame(data_taikhoan)
             st.dataframe(df_taikhoan, use_container_width=True, hide_index=True)
 
-    # ==========================
-    # GÓC NHÌN CỘNG TÁC VIÊN (CTV)
     # ==========================
     else:
         st.markdown("<h4 style='margin-bottom: 20px;'>Nhiệm vụ của bạn</h4>", unsafe_allow_html=True)
